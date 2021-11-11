@@ -42,14 +42,14 @@ def main():
         mask_black = cv2.inRange(image, mins, maxs)
         cv2.imshow(window_name, mask_black)
 
-        if cv2.waitKey(1) == ord('q'):
-            break
-
         if cv2.waitKey(1) == ord('w'):
             file_name = 'limits.json'
             with open(file_name, 'w') as file_handle:
                 print('writing dictionary ranges to file ' + file_name)
-                json.dump(ranges, file_handle)  # d is the dictionary
+                json.dump(ranges, file_handle)  # d is the dictionaryqqqqqqqqq
+
+        if cv2.waitKey(1) == ord('q'):
+            break
 
 
 if __name__ == '__main__':
