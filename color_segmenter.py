@@ -1,5 +1,12 @@
 #!/usr/bin/python3.8
-
+# --------------------------------------------------
+# Python script for color adjustment and saving the values to a json file.
+# Rafael Inacio Siopa.
+# Frederico Ribeiro e Martins.
+# Rodrigo Dinis Martins Ferreira.
+# Bartosz Bartosik.
+# PSR, November 2021.
+# --------------------------------------------------
 import json
 import cv2
 import numpy as np
