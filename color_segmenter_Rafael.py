@@ -20,7 +20,6 @@ def main():
     window_name = 'window'
     cv2.namedWindow(window_name)
     capture = cv2.VideoCapture(0)
-    capture.set(cv2.CAP_PROP_FPS, 15)
 
     ranges = {'limits': {'B': {'max': 255, 'min': 0},
                          'G': {'max': 255, 'min': 0},
