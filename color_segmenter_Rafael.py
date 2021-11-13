@@ -17,7 +17,7 @@ def nothing(x):
 
 
 def main():
-    window_name = 'window - Ex3a'
+    window_name = 'window'
     cv2.namedWindow(window_name)
     capture = cv2.VideoCapture(0)
     capture.set(cv2.CAP_PROP_FPS, 15)

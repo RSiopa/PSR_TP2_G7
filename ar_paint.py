@@ -17,13 +17,9 @@ args = vars(parser.parse_args())
 
 def main():
 
-    with open('limits.json') as json_file:
-        data = json.load(args['json'])
-        for p in data['people']:
-            print('Name: ' + p['name'])
-            print('Website: ' + p['website'])
-            print('From: ' + p['from'])
-            print('')
+    data = json.load(open(args['json']))
+    dict_json = data['limits']
+    print(dict_json)
 
 
 if __name__ == '__main__':
