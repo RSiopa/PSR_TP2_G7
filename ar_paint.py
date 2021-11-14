@@ -9,6 +9,8 @@
 # --------------------------------------------------
 import argparse
 import copy
+from datetime import datetime
+
 from numpy import zeros
 from color_segmenter import *
 
@@ -32,7 +34,6 @@ def main():
     window_name = 'window_sketch'
     cv2.namedWindow(window_name)
     capture = cv2.VideoCapture(0)
-    capture.set(cv2.CAP_PROP_FPS, 15)
 
     # White image aka image_sketch created
     _, image = capture.read()
@@ -53,6 +54,18 @@ def main():
 
     # Flag for the program to know that the user just started to draw a new line (lines can be disconnected)
     flag_newline = 1
+
+    print('\nPress r to change to red color.'
+          '\nPress g to change to green color.'
+          '\nPress b to change to blue color.'
+          '\nPress + to increase the thickness of the pencil'
+          '\nPress - to decrease the thickness of the pencil'
+          '\nPress c to clear the sketch'
+          '\nPress w to save the sketch'
+          '\nInitializing with red color as default.')
+
+    color = (0, 0, 255)     #Default color for the sketch
+    thickness = 2             #Default thickness of the pencil
 
     # -----------------------------------------------------------
     # Continuous Operation
@@ -88,14 +101,14 @@ def main():
 
             # If it is a new line, paint a circle in the centroid of the object
             if flag_newline == 1:
-                cv2.circle(image_sketch, (int(cX), int(cY)), 0, (0, 0, 255), 2)
+                cv2.circle(image_sketch, (int(cX), int(cY)), 0, color, thickness)
                 cX_past = cX
                 cY_past = cY
                 flag_newline = 0
 
             # If it is a continuation of a line, draw a line between the new centroid and the last centroid
             else:
-                cv2.line(image_sketch, (int(cX_past), int(cY_past)), (int(cX), int(cY)), (0, 0, 255), 2)
+                cv2.line(image_sketch, (int(cX_past), int(cY_past)), (int(cX), int(cY)), color, thickness)
                 cX_past = cX
                 cY_past = cY
 
@@ -109,10 +122,28 @@ def main():
         cv2.imshow('window_origin', image_origin)
         cv2.imshow(window_name, image_sketch)
 
-        #Stop the program when 'q' is pressed
-        if cv2.waitKey(1) == ord('q'):
-            break
+        key = cv2.waitKey(20)
 
+        if key==ord('q'):                   #Stop the program when 'q' is pressed
+            break
+        if key==ord('r'):                   #Change the pencil color to red when'r' is pressed
+            color = (0, 0, 255)
+        if key==ord('g'):                   #Change the pencil color to green when 'g' is pressed
+            color = (0, 255, 0)
+        if key==ord('b'):                   #Change the pencil color to blue when 'b' is pressed
+            color = (255, 0, 0)
+        if key==ord('+'):                   #Increase the pencil thickness when '+' is pressed
+            thickness+=1
+        if key==ord('-') and thickness>1:   #Decrease the pencil thickness when '-' is pressed
+            thickness-=1
+        if key==ord('c'):                   #Clear the sketch when 'c' is pressed
+            for y in range(h):
+                for x in range(w):
+                    image_sketch[y, x] = [255, 255, 255]
+        if key==ord('w'):                   #Save the sketch when 'w' is pressed
+            filename = datetime.now().strftime('drawing_'+"%a_%b_%d_%H:%M:%S_%Y"+'.jpg')
+            cv2.imwrite(filename, image_sketch)
+            print(filename + ' saved.')
 
 if __name__ == '__main__':
     main()
