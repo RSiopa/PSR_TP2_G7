@@ -95,7 +95,7 @@ def main():
                 mask_largest[output == i + 1] = 255
                 image_origin[output == i + 1] = [0, 255, 0]
                 (cX, cY) = centroids[i + 1]
-        shake_sens=50
+        shake_sens=51
         if (cX_past-cX>shake_sens or cX_past-cX<-shake_sens or cY_past-cY>shake_sens or cY_past-cY<-shake_sens) and args['use_shake_prevention']:
             flag_newline=1
         # If there are objects
