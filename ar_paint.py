@@ -1,10 +1,10 @@
-#!/usr/bin/python3.8
+#!/usr/bin/env python3
 # --------------------------------------------------
 # Python script with a variety of painting functions!
 # Rafael Inacio Siopa.
 # Rodrigo Dinis Martins Ferreira.
-# Frederico Ribeiro e Martins.
 # Bartosz Bartosik.
+# Frederico Ribeiro e Martins.
 # PSR, November 2021.
 # --------------------------------------------------
 import argparse
@@ -17,7 +17,8 @@ from color_segmenter import *
 # Argument
 parser = argparse.ArgumentParser()
 parser.add_argument('-j', '--json', type=str, help='Full path to json file.\n ')
-parser.add_argument('-usp', '--use_shake_prevention', action='store_true', help='When activated prevent random scribbles.\n ')
+parser.add_argument('-usp', '--use_shake_prevention', action='store_true', help='When activated prevents random '
+                                                                                'scribbles due to fast movement.\n ')
 args = vars(parser.parse_args())
 
 
@@ -67,8 +68,11 @@ def main():
 
     color = (0, 0, 255)       #Default color for the sketch
     thickness = 2             #Default thickness of the pencil
-    cX_past=0
-    cY_past=0
+    cX_past = 0
+    cY_past = 0
+    cX = 0
+    cY = 0
+    shake_sens = 425
 
     # -----------------------------------------------------------
     # Continuous Operation
@@ -95,17 +99,15 @@ def main():
                 mask_largest[output == i + 1] = 255
                 image_origin[output == i + 1] = [0, 255, 0]
                 (cX, cY) = centroids[i + 1]
-        shake_sens=51
-        if (cX_past-cX>shake_sens or cX_past-cX<-shake_sens or cY_past-cY>shake_sens or cY_past-cY<-shake_sens) and args['use_shake_prevention']:
-            flag_newline=1
+
         # If there are objects
-        if nb_components > 0:
+        if nb_components > 0 and ((cX_past - cX) ** 2 + (cY_past - cY) ** 2 < shake_sens ** 2):
             # Draws cross at the center of the object
             cv2.line(image_origin, (int(cX)-10, int(cY)), (int(cX)+10, int(cY)), (0, 0, 255), 2)
             cv2.line(image_origin, (int(cX), int(cY)-10), (int(cX), int(cY)+10), (0, 0, 255), 2)
 
             # If it is a new line, paint a circle in the centroid of the object
-            if flag_newline == 1:
+            if flag_newline == 1 and args['use_shake_prevention']:
                 cv2.circle(image_sketch, (int(cX), int(cY)), 0, color, thickness)
                 cX_past = cX
                 cY_past = cY
@@ -116,6 +118,7 @@ def main():
                 cv2.line(image_sketch, (int(cX_past), int(cY_past)), (int(cX), int(cY)), color, thickness)
                 cX_past = cX
                 cY_past = cY
+
 
         # If no objects are present, reset the flag for a new line
         else:
@@ -129,26 +132,27 @@ def main():
 
         key = cv2.waitKey(20)
 
-        if key==ord('q'):                   #Stop the program when 'q' is pressed
+        if key == ord('q'):                   #Stop the program when 'q' is pressed
             break
-        if key==ord('r'):                   #Change the pencil color to red when'r' is pressed
+        if key == ord('r'):                   #Change the pencil color to red when'r' is pressed
             color = (0, 0, 255)
-        if key==ord('g'):                   #Change the pencil color to green when 'g' is pressed
+        if key == ord('g'):                   #Change the pencil color to green when 'g' is pressed
             color = (0, 255, 0)
-        if key==ord('b'):                   #Change the pencil color to blue when 'b' is pressed
+        if key == ord('b'):                   #Change the pencil color to blue when 'b' is pressed
             color = (255, 0, 0)
-        if key==ord('+'):                   #Increase the pencil thickness when '+' is pressed
-            thickness+=1
-        if key==ord('-') and thickness>1:   #Decrease the pencil thickness when '-' is pressed
-            thickness-=1
-        if key==ord('c'):                   #Clear the sketch when 'c' is pressed
+        if key == ord('+'):                   #Increase the pencil thickness when '+' is pressed
+            thickness += 1
+        if key == ord('-') and thickness>1:   #Decrease the pencil thickness when '-' is pressed
+            thickness -= 1
+        if key == ord('c'):                   #Clear the sketch when 'c' is pressed
             for y in range(h):
                 for x in range(w):
                     image_sketch[y, x] = [255, 255, 255]
-        if key==ord('w'):                   #Save the sketch when 'w' is pressed
+        if key == ord('w'):                   #Save the sketch when 'w' is pressed
             filename = datetime.now().strftime('drawing_'+"%a_%b_%d_%H:%M:%S_%Y"+'.jpg')
             cv2.imwrite(filename, image_sketch)
             print(filename + ' saved.')
+
 
 if __name__ == '__main__':
     main()

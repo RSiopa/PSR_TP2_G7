@@ -1,10 +1,10 @@
-#!/usr/bin/python3.8
+#!/usr/bin/env python3
 # --------------------------------------------------
 # Python script for color adjustment and saving the values to a json file.
 # Rafael Inacio Siopa.
-# Frederico Ribeiro e Martins.
 # Rodrigo Dinis Martins Ferreira.
 # Bartosz Bartosik.
+# Frederico Ribeiro e Martins.
 # PSR, November 2021.
 # --------------------------------------------------
 import json
