@@ -177,7 +177,7 @@ def main():
         else:
             cv2.setMouseCallback(window_name, lambda *args: None)
 
-        key = cv2.waitKey(1)
+        key = cv2.waitKey(20)
 
         if key == ord('q'):                    # Stops the program when 'q' is pressed
             break
@@ -200,7 +200,7 @@ def main():
             for y in range(h):
                 for x in range(w):
                     image_sketch[y, x] = [255, 255, 255]
-                    image_sketch_over = copy.copy(image)
+                    #image_sketch_over = copy.copy(image)
         if key == ord('w'):                    # Saves the sketch when 'w' is pressed
             filename = datetime.now().strftime('drawing_'+"%a_%b_%d_%H:%M:%S_%Y"+'.jpg')
             cv2.imwrite(filename, image_sketch)
