@@ -26,8 +26,8 @@ parser.add_argument('-usp', '--use_shake_prevention', action='store_true', help=
                                                                                 'scribbles due to fast movement.\n ')
 args = vars(parser.parse_args())
 
-# Mouse function
-def MouseCoord(event, x, y, flags, params, window_name, img, color, thickness):
+# Mouse function (for 2 separate images)
+def MouseCoord(event, x, y, flags, params, window_name, img, img2, color, thickness):
     global drawing, ix, iy
     if event == cv2.EVENT_LBUTTONDOWN:
         drawing = True
@@ -37,12 +37,14 @@ def MouseCoord(event, x, y, flags, params, window_name, img, color, thickness):
     elif event == cv2.EVENT_MOUSEMOVE:
         if drawing == True:
             cv2.line(img, (ix, iy), (x, y), color, thickness)
+            cv2.line(img2, (ix, iy), (x, y), color, thickness)
             ix = x
             iy = y
 
     elif event == cv2.EVENT_LBUTTONUP:
         drawing = False
         cv2.line(img, (ix, iy), (x, y), color, thickness)
+        cv2.line(img2, (ix, iy), (x, y), color, thickness)
 
 
 def main():
@@ -64,13 +66,8 @@ def main():
     _, image = capture.read()
     h = len(image)
     w = len(image[0])
-    image_sketch = zeros([h, w, 3])
-    image_sketch2 = copy.copy(image)
-
-    for y in range(h):
-        for x in range(w):
-            image_sketch[y, x] = [255, 255, 255]
-            image_sketch2[y, x] = 255
+    image_sketch = np.ones([h, w, 3], dtype=np.uint8) * 255
+    image_sketch2 = np.ones([h, w, 3], dtype=np.uint8) * 255
 
     # Mins and maxs acquired from dictionary in Json file
     mins = np.array([limits['B']['min'], limits['G']['min'], limits['R']['min']])
@@ -162,18 +159,20 @@ def main():
         cv2.imshow('window_mask_largest', mask_largest)
         cv2.imshow('window_origin', image_origin)
 
+        # Changes white board to video stream
         if flag_video == 0:
             cv2.imshow(window_name, image_sketch)
         else:
-            # image_sketch2[np.where(image_sketch2 == 255)] = image[np.where(image_sketch2 == 255)]
-            cv2.imshow(window_name, image_sketch2)
+            image_over_sketch = copy.copy(image_sketch2)
+            image_over_sketch[np.where(image_sketch2 == [255])] = image[np.where(image_sketch2 == 255)].copy()
+            cv2.imshow(window_name, image_over_sketch)
 
         # Changes the mouse color and thickness
-        MouseCoord_paint = partial(MouseCoord, window_name=window_name, img=image_sketch, color=color,
+        MouseCoord_paint = partial(MouseCoord, window_name=window_name, img=image_sketch, img2=image_sketch2, color=color,
                                    thickness=thickness)
         # Changes modes if flag_mouse changes
         if flag_mouse == 1:
-            cv2.setMouseCallback(window_name, MouseCoord_paint)
+                cv2.setMouseCallback(window_name, MouseCoord_paint)
         else:
             cv2.setMouseCallback(window_name, lambda *args: None)
 
@@ -197,10 +196,8 @@ def main():
                                                # when 'm' is pressed
             flag_video = not flag_video
         if key == ord('c'):                    # Clears the sketch when 'c' is pressed
-            for y in range(h):
-                for x in range(w):
-                    image_sketch[y, x] = [255, 255, 255]
-                    #image_sketch_over = copy.copy(image)
+            image_sketch = np.ones([h, w, 3], dtype=np.uint8)*255
+            image_sketch2 = np.ones([h, w, 3], dtype=np.uint8) * 255
         if key == ord('w'):                    # Saves the sketch when 'w' is pressed
             filename = datetime.now().strftime('drawing_'+"%a_%b_%d_%H:%M:%S_%Y"+'.jpg')
             cv2.imwrite(filename, image_sketch)
