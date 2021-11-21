@@ -11,8 +11,6 @@ import argparse
 import copy
 from datetime import datetime
 from functools import partial
-
-from numpy import zeros
 from color_segmenter import *
 
 drawing = False
@@ -24,7 +22,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-j', '--json', type=str, help='Full path to json file.\n ')
 parser.add_argument('-usp', '--use_shake_prevention', action='store_true', help='When activated prevents random '
                                                                                 'scribbles due to fast movement.\n ')
-parser.add_argument('-i', '--image_file', type=str, help='Full path to image file to paint.\n ')
+parser.add_argument('-i', '--image_to_paint', type=int, help='Number of the picture you want to paint.\n ')
 args = vars(parser.parse_args())
 
 # Mouse function (for 2 separate images)
@@ -70,12 +68,15 @@ def main():
     image_sketch = np.ones([h, w, 3], dtype=np.uint8) * 255
     image_sketch2 = np.ones([h, w, 3], dtype=np.uint8) * 255
 
-    flag_paint_image = 0
-    if args['image_file']:
-        image_filename = args['image_file']
-        num_paint = cv2.imread(image_filename, cv2.IMREAD_COLOR)
+    # Dictionary for the pictures that the user will be able to choose to paint
+    picture_dict = {1: 'cupcake.png', 2: 'dog.png'}
+
+    # If user wants to paint an image, image_sketch is now the image to paint
+    if args['image_to_paint'] is not None:
+        image_file = picture_dict[args['image_to_paint']]
+        num_paint = cv2.imread(image_file, cv2.IMREAD_COLOR)
         resized = cv2.resize(num_paint, (w, h), interpolation=cv2.INTER_AREA)
-        flag_paint_image=1
+        ret, image_sketch = cv2.threshold(resized, 200, 255, cv2.THRESH_BINARY)
 
     # Mins and maxs acquired from dictionary in Json file
     mins = np.array([limits['B']['min'], limits['G']['min'], limits['R']['min']])
@@ -145,8 +146,7 @@ def main():
 
             if flag_mouse == 0:
                 # If it is a new line, paint a circle in the centroid of the object
-                shake_sens=80
-                if flag_newline == 1 or (args['use_shake_prevention'] and (cX_past-cX > shake_sens or cX_past-cX < -shake_sens or cY_past-cY > shake_sens or cY_past-cY < -shake_sens)):
+                if flag_newline == 1 and args['use_shake_prevention']:
                     cv2.circle(image_sketch, (int(cX), int(cY)), 0, color, thickness)
                     cv2.circle(image_sketch2, (int(cX), int(cY)), 0, color, thickness)
                     cX_past = cX
@@ -175,13 +175,7 @@ def main():
             cv2.imshow(window_name, image_sketch)
         else:
             image_over_sketch = copy.copy(image_sketch2)
-            image_over_sketch[np.where(image_sketch2 == [255])] = image[np.where(image_sketch2 == 255)].copy()
-            cv2.imshow(window_name, image_over_sketch)
-
-        # Changes white board to image to numeric paint
-        if flag_paint_image == 1:
-            image_over_sketch = copy.copy(image_sketch2)
-            image_over_sketch[np.where(image_sketch2 == [255])] = resized[np.where(image_sketch2 == 255)].copy()
+            image_over_sketch[np.where(image_sketch2 == 255)] = image[np.where(image_sketch2 == 255)].copy()
             cv2.imshow(window_name, image_over_sketch)
 
         # Changes the mouse color and thickness
@@ -189,21 +183,23 @@ def main():
                                    thickness=thickness)
         # Changes modes if flag_mouse changes
         if flag_mouse == 1:
-                cv2.setMouseCallback(window_name, MouseCoord_paint)
+            cv2.setMouseCallback(window_name, MouseCoord_paint)
         else:
             cv2.setMouseCallback(window_name, lambda *args: None)
 
+        # Evaluates the drawing abilities of the user
         if evaluation == 1:
-            img_blur = cv2.GaussianBlur(image_over_sketch, (3, 3), 0)
-            # Canny Edge Detection
-            edges = cv2.Canny(image=img_blur, threshold1=100, threshold2=200)  # Canny Edge Detection
-            mask = edges.astype(bool)  # Convert the edges from uint8 to boolean
-            alpha = 0.15  # Transparency factor.
-            # Following line overlays transparent rectangle over the image
-            frame = cv2.addWeighted(resized, alpha, resized, 1 - alpha, 0)
-            # Change the pixels where we have edges to red.
-            frame[mask] = (0, 0, 255)  # Where the mask is true, change the pixels to red
-            # Show image
+            # image_over_picture[np.where(image_sketch2 == [255])] = resized[np.where(image_sketch2 == 255)].copy()
+            # img_blur = cv2.GaussianBlur(image_over_picture, (3, 3), 0)
+            # # Canny Edge Detection
+            # edges = cv2.Canny(image=img_blur, threshold1=100, threshold2=200)  # Canny Edge Detection
+            # mask = edges.astype(bool)  # Convert the edges from uint8 to boolean
+            # alpha = 0.15  # Transparency factor.
+            # # Following line overlays transparent rectangle over the image
+            # frame = cv2.addWeighted(resized, alpha, resized, 1 - alpha, 0)
+            # # Change the pixels where we have edges to red.
+            # frame[mask] = (0, 0, 255)  # Where the mask is true, change the pixels to red
+            # # Show image
             cv2.imshow(window_name, frame)
 
         key = cv2.waitKey(20)
@@ -232,7 +228,7 @@ def main():
             cv2.imwrite(filename, image_sketch)
             print(filename + ' saved.')
         if key == ord('e'):
-            evaluation=1
+            evaluation = not evaluation
 
 
 
