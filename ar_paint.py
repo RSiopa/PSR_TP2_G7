@@ -72,14 +72,15 @@ def main():
     picture_dict = {1: 'cupcake.png', 2: 'ball.png', 3: 'bee.png'}
 
     # Dictionary for the pictures perfectly painted
-    perfect_dict = {1: 'cupcake_perfect.png', 2: 'ball_perfect.png', 3: 'bee_perfect.png'}
+    perfect_dict = {1: 'cupcake_perfect.jpg', 2: 'ball_perfect.jpg'}
 
     # If user wants to paint an image, image_sketch is now the image to paint
     if args['image_to_paint'] is not None:
         image_file = picture_dict[args['image_to_paint']]
         num_paint = cv2.imread(image_file, cv2.IMREAD_COLOR)
         resized = cv2.resize(num_paint, (w, h), interpolation=cv2.INTER_AREA)
-        ret, image_sketch = cv2.threshold(resized, 190, 255, cv2.THRESH_BINARY)
+        ret, image_threshold = cv2.threshold(resized, 190, 255, cv2.THRESH_BINARY)
+        image_sketch = copy.copy(image_threshold)
 
         # Mins and maxs acquired from dictionary in Json file
     mins = np.array([limits['B']['min'], limits['G']['min'], limits['R']['min']])
@@ -230,8 +231,11 @@ def main():
         if key == ord('v'):                    # Switches between using the blank image and the video stream to paint
             flag_video = not flag_video        # when 'v' is pressed
         if key == ord('c'):                    # Clears the sketch when 'c' is pressed
-            image_sketch = np.ones([h, w, 3], dtype=np.uint8)*255
             image_sketch2 = np.ones([h, w, 3], dtype=np.uint8) * 255
+            if args['image_to_paint'] is not None:
+                image_sketch = copy.copy(image_threshold)
+            else:
+                image_sketch = np.ones([h, w, 3], dtype=np.uint8) * 255
         if key == ord('w'):                    # Saves the sketch when 'w' is pressed
             filename = datetime.now().strftime('drawing_'+"%a_%b_%d_%H:%M:%S_%Y"+'.jpg')
             cv2.imwrite(filename, image_sketch)
