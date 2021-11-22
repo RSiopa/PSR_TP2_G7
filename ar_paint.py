@@ -69,7 +69,7 @@ def main():
     image_sketch2 = np.ones([h, w, 3], dtype=np.uint8) * 255
 
     # Dictionary for the pictures that the user will be able to choose to paint
-    picture_dict = {1: 'cupcake.png', 2: 'ball.png', 3: 'butterfly.jpg'}
+    picture_dict = {1: 'cupcake.jpg', 2: 'ball.jpg', 3: 'butterfly.jpg'}
 
     # Dictionary for the pictures perfectly painted
     perfect_dict = {1: 'cupcake_perfect.jpg', 2: 'ball_perfect.jpg', 3: 'butterfly_perfect.jpg'}
@@ -80,7 +80,6 @@ def main():
         num_paint = cv2.imread(image_file, cv2.IMREAD_COLOR)
         resized = cv2.resize(num_paint, (w, h), interpolation=cv2.INTER_AREA)
         ret, image_threshold = cv2.threshold(resized, 190, 255, cv2.THRESH_BINARY)
-        cv2.imwrite('butterfly_perfect.jpg', image_threshold)
         image_sketch = copy.copy(image_threshold)
 
         # Mins and maxs acquired from dictionary in Json file
