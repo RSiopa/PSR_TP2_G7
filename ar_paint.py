@@ -97,6 +97,7 @@ def main():
           '\nPress g to change to green color.'
           '\nPress b to change to blue color.'
           '\nPress y to change to yellow color.'
+          '\nPress o to change to orange color.'
           '\nPress k to change to black color.'
           '\nPress + to increase the thickness of the pencil'
           '\nPress - to decrease the thickness of the pencil'
@@ -221,6 +222,8 @@ def main():
             color = (255, 0, 0)
         if key == ord('y'):                    # Changes the pencil color to yellow when 'y' is pressed
             color = (0, 255, 255)
+        if key == ord('o'):                    # Changes the pencil color to orange when 'o' is pressed
+            color = (0, 165, 255)
         if key == ord('k'):                    # Changes the pencil color to black when 'k' is pressed
             color = (0, 0, 0)
         if key == ord('+'):                    # Increases the pencil thickness when '+' is pressed
