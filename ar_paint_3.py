@@ -9,13 +9,12 @@
 # --------------------------------------------------
 import argparse
 import copy
-import json
 import math
 import time
 from datetime import datetime
 
-import cv2
 import numpy as np
+
 from color_segmenter import *
 
 drawing = False
@@ -33,9 +32,11 @@ args = vars(parser.parse_args())
 
 # Mouse function (for 2 separate images)
 # _____________________________________________________________________________________
-# TODO: add to final code
+# TODO: substitute whole MouseCoord() function with code surrounded by #------
 def MouseCoord(event, x, y, flags, param):
-    global drawing, ix, iy
+    global drawing, ix, iy, x_, y_
+
+    # Read all the parameters from main loop
     drawing_type = param[0]
     img = param[1]
     img2 = param[2]
@@ -43,32 +44,59 @@ def MouseCoord(event, x, y, flags, param):
     thickness = param[4]
     drawing_type = param[5]
 
-    past_img = np.ones([512, 512, 3], dtype=np.uint8) * 255
-    past_img2 = np.ones([512, 512, 3], dtype=np.uint8) * 255
-
+    # Drawing rectangles
     if drawing_type == 'square':
+        # When mouse is pressed
         if event == cv2.EVENT_LBUTTONDOWN:
             drawing = True
-            past_img = copy.deepcopy(img)
-            past_img2 = copy.deepcopy(img2)
-            ix = x
-            iy = y
+            ix, iy = x, y
+            x_, y_ = x, y
 
-        elif event == cv2.EVENT_MOUSEMOVE:
-            if drawing == True:
-                cv2.rectangle(img, (ix, iy), (x, y), color, thickness)
-                cv2.rectangle(img2, (ix, iy), (x, y), color, thickness)
-                ix = x
-                iy = y
+        # When mouse is moving
+        elif event == cv2.EVENT_MOUSEMOVE and drawing:
+            copy1 = img.copy()
+            copy2 = img.copy()
+            x_, y_ = x, y
 
+            cv2.rectangle(copy1, (ix, iy), (x_, y_), color, thickness)
+            cv2.rectangle(copy2, (ix, iy), (x_, y_), color, thickness)
+
+            cv2.imshow("window_sketch", copy1)
+            cv2.imshow("window_sketch", copy2)
+
+        # When realising left mouse button
         elif event == cv2.EVENT_LBUTTONUP:
             drawing = False
-            img = copy.deepcopy(past_img)
-            img2 = copy.deepcopy(past_img2)
-            cv2.rectangle(img, (ix, iy), (x, y), color, thickness)
+            cv2.rectangle(img, (ix,iy), (x, y), color, thickness)
             cv2.rectangle(img2, (ix, iy), (x, y), color, thickness)
+
+    # Drawing circles
     elif drawing_type == 'circle':
-        pass
+        # When mouse is pressed
+        if event == cv2.EVENT_LBUTTONDOWN:
+            drawing = True
+            ix, iy = x, y
+            x_, y_ = x, y
+
+        # When mouse is moving
+        elif event == cv2.EVENT_MOUSEMOVE and drawing:
+            copy1 = img.copy()
+            copy2 = img.copy()
+            x_, y_ = x, y
+
+            cv2.circle(copy1, (ix, iy), np.float32(math.sqrt((x_-ix)**2 + (y_-iy)**2)), color, thickness)
+            cv2.circle(copy2, (ix, iy), np.float32(math.sqrt((x_-ix)**2 + (y_-iy)**2)), color, thickness)
+
+            cv2.imshow("window_sketch", copy1)
+            cv2.imshow("window_sketch", copy2)
+
+        # When realising left mouse button
+        elif event == cv2.EVENT_LBUTTONUP:
+            drawing = False
+            cv2.circle(img, (ix, iy), np.float32(math.sqrt((x-ix)**2 + (y-iy)**2)), color, thickness)
+            cv2.circle(img2, (ix, iy), np.float32(math.sqrt((x-ix)**2 + (y-iy)**2)), color, thickness)
+
+    # Default drawing
     else:
         if event == cv2.EVENT_LBUTTONDOWN:
             drawing = True
@@ -155,7 +183,8 @@ def main():
     flag_video = 0
 
     # _____________________________________________________________________________________
-    # TODO: add to final code
+    # TODO: add flags final code
+    # Detect type of drawing mode
     drawing_type = 'default'
     flag_square = False
     flag_circle = False
@@ -171,7 +200,7 @@ def main():
     # -----------------------------------------------------------
     while True:
 
-        # TODO: 'key' moved
+        # TODO: 'key' moved to the first line of while loop
         key = cv2.waitKey(20)
 
         _, image = capture.read()
@@ -213,22 +242,19 @@ def main():
                 # If it is a continuation of a line, draw a line between the new centroid and the last centroid
                 else:
                     # _____________________________________________________________________________________
-                    # TODO: add to final code
+                    # TODO: depending on 'drawing_type', proper 'if' is executed
+                    # If current drawing mode is set to Square
                     if drawing_type == 'square':
-                        if not flag_figure_drawing_in_progress:
-                            past_image_sketch = copy.deepcopy(image_sketch)
-                            past_image_sketch2 = copy.deepcopy(image_sketch2)
+                        current_sketch = copy.deepcopy(image_sketch)
+                        current_sketch2 = copy.deepcopy(image_sketch2)
 
                         flag_figure_drawing_in_progress = True
-                        cv2.rectangle(image_sketch, (int(cX_past), int(cY_past)), (int(cX), int(cY)), color,
+                        cv2.rectangle(current_sketch, (int(cX_past), int(cY_past)), (int(cX), int(cY)), color,
                                       thickness)
-                        cv2.rectangle(image_sketch2, (int(cX_past), int(cY_past)), (int(cX), int(cY)), color,
+                        cv2.rectangle(current_sketch2, (int(cX_past), int(cY_past)), (int(cX), int(cY)), color,
                                       thickness)
 
                         if key == ord('s'):
-                            image_sketch = copy.deepcopy(past_image_sketch)
-                            image_sketch2 = copy.deepcopy(past_image_sketch2)
-
                             cv2.rectangle(image_sketch, (int(cX_past), int(cY_past)), (int(cX), int(cY)), color,
                                           thickness)
                             cv2.rectangle(image_sketch2, (int(cX_past), int(cY_past)), (int(cX), int(cY)), color,
@@ -236,21 +262,18 @@ def main():
                             cX_past = cX
                             cY_past = cY
                             flag_figure_drawing_in_progress = False
+
                     elif drawing_type == 'circle':
-                        if not flag_figure_drawing_in_progress:
-                            past_image_sketch = copy.deepcopy(image_sketch)
-                            past_image_sketch2 = copy.deepcopy(image_sketch2)
+                        current_sketch = copy.deepcopy(image_sketch)
+                        current_sketch2 = copy.deepcopy(image_sketch2)
 
                         flag_figure_drawing_in_progress = True
-                        cv2.circle(image_sketch, (int(cX_past), int(cY_past)), np.float32(math.sqrt((int(cX)-int(cX_past))**2 + (int(cY)-int(cY_past))**2)), color,
+                        cv2.circle(current_sketch, (int(cX_past), int(cY_past)), np.float32(math.sqrt((int(cX)-int(cX_past))**2 + (int(cY)-int(cY_past))**2)), color,
                                       thickness)
-                        cv2.circle(image_sketch2, (int(cX_past), int(cY_past)), np.float32(math.sqrt((int(cX)-int(cX_past))**2 + (int(cY)-int(cY_past))**2)), color,
+                        cv2.circle(current_sketch2, (int(cX_past), int(cY_past)), np.float32(math.sqrt((int(cX)-int(cX_past))**2 + (int(cY)-int(cY_past))**2)), color,
                                       thickness)
-
 
                         if key == ord('o'):
-                            image_sketch = copy.deepcopy(past_image_sketch)
-                            image_sketch2 = copy.deepcopy(past_image_sketch2)
                             cv2.circle(image_sketch, (int(cX_past), int(cY_past)), np.float32(math.sqrt((int(cX)-int(cX_past))**2 + (int(cY)-int(cY_past))**2)), color,
                                           thickness)
                             cv2.circle(image_sketch2, (int(cX_past), int(cY_past)), np.float32(math.sqrt((int(cX)-int(cX_past))**2 + (int(cY)-int(cY_past))**2)), color,
@@ -276,15 +299,29 @@ def main():
         cv2.imshow('window_mask_largest', mask_largest)
         cv2.imshow('window_origin', image_origin)
 
+        # _____________________________________________________________________________________
+        # TODO: modify 'if' statements in order to determine whether figure is being drawn so that to show proper image (substitute that part of code)
         # Changes white board to video stream
         if flag_video == 0:
-            cv2.imshow(window_name, image_sketch)
+            # Show main image when rectangle/circle is not being drawn
+            if not flag_figure_drawing_in_progress:
+                cv2.imshow(window_name, image_sketch)
+            # Else show image with rectangle/circle that is being drawn
+            else:
+                cv2.imshow(window_name, current_sketch)
         else:
-            image_over_sketch = copy.copy(image_sketch2)
-            image_over_sketch[np.where(image_sketch2 == 255)] = image[np.where(image_sketch2 == 255)].copy()
+            # Copy main image when rectangle/circle is not being drawn
+            if not flag_figure_drawing_in_progress:
+                image_over_sketch = copy.copy(image_sketch2)
+            # Else copy image with rectangle/circle that is being drawn
+            else:
+                image_over_sketch = copy.copy(current_sketch2)
+            image_over_sketch[np.where(current_sketch2 == 255)] = image[np.where(current_sketch2 == 255)].copy()
             cv2.imshow(window_name, image_over_sketch)
         # _____________________________________________________________________________________
-        # TODO: add to final code (partial() function deleted)
+
+        # _____________________________________________________________________________________
+        # TODO: param list send actual variables from main loop to MouseCoord() function (partial() function deleted to avoid bugs in program)
         param = [drawing_type, image_sketch, image_sketch2, color, thickness, drawing_type]
         # Changes modes if flag_mouse changes
         if flag_mouse == 1:
@@ -334,8 +371,8 @@ def main():
         if key == ord('e'):
             evaluation = not evaluation
         # _____________________________________________________________________________________
-        # TODO: add to final code
-        # Draws a rectangle when 's' is pressed
+        # TODO: check whether 's' of 'o' button was pressed and toggle it
+        # Detect if 's' is pressed and toggle it
         if key == ord('s'):
             flag_square = not flag_square
             if flag_square:
@@ -344,6 +381,7 @@ def main():
             else:
                 drawing_type = 'default'
                 print("You switched to default draw mode.")
+        # Detect if 'o' is pressed and toggle it
         elif key == ord('o'):
             flag_circle = not flag_circle
             if flag_circle:
