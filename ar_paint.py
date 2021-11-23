@@ -12,6 +12,7 @@ import copy
 from datetime import datetime
 from functools import partial
 from color_segmenter import *
+from colorama import Fore, Back, Style
 
 drawing = False
 ix = -1
@@ -69,7 +70,7 @@ def main():
     image_sketch2 = np.ones([h, w, 3], dtype=np.uint8) * 255
 
     # Dictionary for the pictures that the user will be able to choose to paint
-    picture_dict = {1: 'cupcake.png', 2: 'ball.jpg', 3: 'butterfly.jpg'}
+    picture_dict = {1: 'cupcake.png', 2: 'ball.png', 3: 'butterfly.jpg'}
 
     # Dictionary for the pictures perfectly painted
     perfect_dict = {1: 'cupcake_perfect.jpg', 2: 'ball_perfect.jpg', 3: 'butterfly_perfect.jpg'}
@@ -80,7 +81,7 @@ def main():
         num_paint = cv2.imread(image_file, cv2.IMREAD_COLOR)
         resized = cv2.resize(num_paint, (w, h), interpolation=cv2.INTER_AREA)
         image_sketch = copy.copy(resized)
-        perfect_image=cv2.imread(perfect_dict[args['image_to_paint']],cv2.IMREAD_COLOR)
+        perfect_image = cv2.imread(perfect_dict[args['image_to_paint']], cv2.IMREAD_COLOR)
         perfect_resized = cv2.resize(perfect_image, (w, h), interpolation=cv2.INTER_AREA)
         cv2.imshow('perfect', perfect_resized)
 
@@ -98,7 +99,7 @@ def main():
           '\nPress g to change to green color.'
           '\nPress b to change to blue color.'
           '\nPress y to change to yellow color.'
-          '\nPress o to change to orange color.'
+          '\nPress p to change to orange color.'
           '\nPress k to change to black color.'
           '\nPress + to increase the thickness of the pencil'
           '\nPress - to decrease the thickness of the pencil'
@@ -198,47 +199,37 @@ def main():
 
         # Evaluates the drawing abilities of the user
         if evaluation == 1:
-            total=h*w
-            nottopaint=0
-            allEqual=0
+            print('Beginning evaluation...')
+            total = h*w
+            nottopaint = 0
+            allEqual = 0
             for i in range(h):
                 for j in range(w):
-                    #compare the perfect image and the original one to count the pixel that are not to paint
-                    if np.all(perfect_resized[i,j]==resized[i,j]):
-                        nottopaint+=1
-            topaint=total-nottopaint
+                    # Compare the perfect image and the original one to count the pixels that are not to paint
+                    if np.all(perfect_resized[i, j] == resized[i, j]):
+                        nottopaint += 1
+            topaint = total - nottopaint
             for i in range(h):
                 for j in range(w):
-                    if np.all(perfect_resized[i,j]==image_sketch[i,j]):
-                        allEqual+=1
-            right=allEqual-nottopaint
-            accuracy=right/topaint
-            if accuracy==1:
-                print('You are an artist. Its perfect!' )
-            elif accuracy==0:
-                print('Are you a magician? I dont think so. Nothing happened!')
-            elif accuracy<0.5:
-                print('Keep prating. One day you will be good. Or not...')
-            elif accuracy>0.5:
-                print('Weel done. A little bit of practice and you will be the next Van Gogh. Just kidding... ')
-            print('Accuracy=',round(accuracy*100,2),'%')
+                    if np.all(perfect_resized[i, j] == image_sketch[i, j]):
+                        allEqual += 1
+            right = allEqual - nottopaint
+            accuracy = right/topaint
+            if accuracy < 0:
+                accuracy = 0
+            if accuracy > 0.9:
+                print('You are an artist. It is perfect!')
+                print('Accuracy=' + Fore.GREEN, round(accuracy * 100, 2), '%' + Style.RESET_ALL)
+            elif accuracy == 0:
+                print('What are you waiting for? Start drawing!')
+                print('Accuracy=' + Fore.RED, round(accuracy * 100, 2), '%' + Style.RESET_ALL)
+            elif accuracy < 0.5:
+                print('Keep practicing. One day you will (probably) get it perfect.')
+                print('Accuracy=' + Fore.MAGENTA, round(accuracy * 100, 2), '%' + Style.RESET_ALL)
+            elif accuracy > 0.5:
+                print('Well done. A little bit of practice and you will be the next Van Gogh!')
+                print('Accuracy=' + Fore.YELLOW, round(accuracy * 100, 2), '%' + Style.RESET_ALL)
             evaluation = not evaluation
-
-
-            #image_sketch[i,j]==perfect_dict[args['image_to_paint']][i,j]:
-
-            # image_over_picture[np.where(image_sketch2 == [255])] = resized[np.where(image_sketch2 == 255)].copy()
-            # img_blur = cv2.GaussianBlur(image_over_picture, (3, 3), 0)
-            # # Canny Edge Detection
-            # edges = cv2.Canny(image=img_blur, threshold1=100, threshold2=200)  # Canny Edge Detection
-            # mask = edges.astype(bool)  # Convert the edges from uint8 to boolean
-            # alpha = 0.15  # Transparency factor.
-            # # Following line overlays transparent rectangle over the image
-            # frame = cv2.addWeighted(resized, alpha, resized, 1 - alpha, 0)
-            # # Change the pixels where we have edges to red.
-            # frame[mask] = (0, 0, 255)  # Where the mask is true, change the pixels to red
-            # # Show image
-            #cv2.imshow(window_name, frame)
 
         key = cv2.waitKey(20)
 
@@ -252,8 +243,8 @@ def main():
             color = (254, 0, 0)
         if key == ord('y'):                    # Changes the pencil color to yellow when 'y' is pressed
             color = (1, 255, 255)
-        if key == ord('o'):                    # Changes the pencil color to orange when 'o' is pressed
-            color = (0, 165, 255)
+        if key == ord('p'):                    # Changes the pencil color to orange when 'p' is pressed
+            color = (0, 165, 254)
         if key == ord('k'):                    # Changes the pencil color to black when 'k' is pressed
             color = (0, 0, 0)
         if key == ord('+'):                    # Increases the pencil thickness when '+' is pressed
@@ -274,7 +265,7 @@ def main():
             filename = datetime.now().strftime('drawing_'+"%a_%b_%d_%H:%M:%S_%Y"+'.jpg')
             cv2.imwrite(filename, image_sketch)
             print(filename + ' saved.')
-        if key == ord('e')and args['image_to_paint'] is not None:
+        if key == ord('e') and args['image_to_paint'] is not None:
             evaluation = not evaluation
 
 
