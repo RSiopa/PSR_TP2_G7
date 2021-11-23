@@ -70,10 +70,10 @@ def main():
     image_sketch2 = np.ones([h, w, 3], dtype=np.uint8) * 255
 
     # Dictionary for the pictures that the user will be able to choose to paint
-    picture_dict = {1: 'cupcake.png', 2: 'ball.png', 3: 'butterfly.jpg'}
+    picture_dict = {1: 'cupcake.png', 2: 'ball.png', 3: 'butterfly.png'}
 
     # Dictionary for the pictures perfectly painted
-    perfect_dict = {1: 'cupcake_perfect.jpg', 2: 'ball_perfect.jpg', 3: 'butterfly_perfect.jpg'}
+    perfect_dict = {1: 'cupcake_perfect.png', 2: 'ball_perfect.png', 3: 'butterfly_perfect.png'}
 
     # If user wants to paint an image, image_sketch is now the image to paint
     if args['image_to_paint'] is not None:
@@ -236,15 +236,15 @@ def main():
         if key == ord('q'):                    # Stops the program when 'q' is pressed
             break
         if key == ord('r'):                    # Changes the pencil color to red when 'r' is pressed
-            color = (0, 0, 254)
+            color = (0, 0, 255)
         if key == ord('g'):                    # Changes the pencil color to green when 'g' is pressed
-            color = (1, 255, 0)
+            color = (0, 255, 0)
         if key == ord('b'):                    # Changes the pencil color to blue when 'b' is pressed
-            color = (254, 0, 0)
+            color = (255, 0, 0)
         if key == ord('y'):                    # Changes the pencil color to yellow when 'y' is pressed
-            color = (1, 255, 255)
+            color = (0, 255, 255)
         if key == ord('p'):                    # Changes the pencil color to orange when 'p' is pressed
-            color = (0, 165, 254)
+            color = (0, 165, 255)
         if key == ord('k'):                    # Changes the pencil color to black when 'k' is pressed
             color = (0, 0, 0)
         if key == ord('+'):                    # Increases the pencil thickness when '+' is pressed
