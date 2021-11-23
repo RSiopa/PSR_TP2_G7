@@ -69,16 +69,20 @@ def main():
     image_sketch2 = np.ones([h, w, 3], dtype=np.uint8) * 255
 
     # Dictionary for the pictures that the user will be able to choose to paint
-    picture_dict = {1: 'cupcake.png', 2: 'dog.png'}
+    picture_dict = {1: 'cupcake.jpg', 2: 'ball.jpg', 3: 'butterfly.jpg'}
+
+    # Dictionary for the pictures perfectly painted
+    perfect_dict = {1: 'cupcake_perfect.jpg', 2: 'ball_perfect.jpg', 3: 'butterfly_perfect.jpg'}
 
     # If user wants to paint an image, image_sketch is now the image to paint
     if args['image_to_paint'] is not None:
         image_file = picture_dict[args['image_to_paint']]
         num_paint = cv2.imread(image_file, cv2.IMREAD_COLOR)
         resized = cv2.resize(num_paint, (w, h), interpolation=cv2.INTER_AREA)
-        ret, image_sketch = cv2.threshold(resized, 200, 255, cv2.THRESH_BINARY)
+        ret, image_threshold = cv2.threshold(resized, 190, 255, cv2.THRESH_BINARY)
+        image_sketch = copy.copy(image_threshold)
 
-    # Mins and maxs acquired from dictionary in Json file
+        # Mins and maxs acquired from dictionary in Json file
     mins = np.array([limits['B']['min'], limits['G']['min'], limits['R']['min']])
     maxs = np.array([limits['B']['max'], limits['G']['max'], limits['R']['max']])
 
@@ -91,6 +95,9 @@ def main():
     print('\nPress r to change to red color.'
           '\nPress g to change to green color.'
           '\nPress b to change to blue color.'
+          '\nPress y to change to yellow color.'
+          '\nPress o to change to orange color.'
+          '\nPress k to change to black color.'
           '\nPress + to increase the thickness of the pencil'
           '\nPress - to decrease the thickness of the pencil'
           '\nPress m to use the mouse as the pencil.'
@@ -212,6 +219,12 @@ def main():
             color = (0, 255, 0)
         if key == ord('b'):                    # Changes the pencil color to blue when 'b' is pressed
             color = (255, 0, 0)
+        if key == ord('y'):                    # Changes the pencil color to yellow when 'y' is pressed
+            color = (0, 255, 255)
+        if key == ord('o'):                    # Changes the pencil color to orange when 'o' is pressed
+            color = (0, 165, 255)
+        if key == ord('k'):                    # Changes the pencil color to black when 'k' is pressed
+            color = (0, 0, 0)
         if key == ord('+'):                    # Increases the pencil thickness when '+' is pressed
             thickness += 1
         if key == ord('-') and thickness > 1:  # Decreases the pencil thickness when '-' is pressed
@@ -221,8 +234,11 @@ def main():
         if key == ord('v'):                    # Switches between using the blank image and the video stream to paint
             flag_video = not flag_video        # when 'v' is pressed
         if key == ord('c'):                    # Clears the sketch when 'c' is pressed
-            image_sketch = np.ones([h, w, 3], dtype=np.uint8)*255
             image_sketch2 = np.ones([h, w, 3], dtype=np.uint8) * 255
+            if args['image_to_paint'] is not None:
+                image_sketch = copy.copy(image_threshold)
+            else:
+                image_sketch = np.ones([h, w, 3], dtype=np.uint8) * 255
         if key == ord('w'):                    # Saves the sketch when 'w' is pressed
             filename = datetime.now().strftime('drawing_'+"%a_%b_%d_%H:%M:%S_%Y"+'.jpg')
             cv2.imwrite(filename, image_sketch)
