@@ -69,7 +69,7 @@ def main():
     image_sketch2 = np.ones([h, w, 3], dtype=np.uint8) * 255
 
     # Dictionary for the pictures that the user will be able to choose to paint
-    picture_dict = {1: 'cupcake.jpg', 2: 'ball.jpg', 3: 'butterfly.jpg'}
+    picture_dict = {1: 'cupcake.png', 2: 'ball.jpg', 3: 'butterfly.jpg'}
 
     # Dictionary for the pictures perfectly painted
     perfect_dict = {1: 'cupcake_perfect.jpg', 2: 'ball_perfect.jpg', 3: 'butterfly_perfect.jpg'}
@@ -79,8 +79,10 @@ def main():
         image_file = picture_dict[args['image_to_paint']]
         num_paint = cv2.imread(image_file, cv2.IMREAD_COLOR)
         resized = cv2.resize(num_paint, (w, h), interpolation=cv2.INTER_AREA)
-        ret, image_threshold = cv2.threshold(resized, 190, 255, cv2.THRESH_BINARY)
-        image_sketch = copy.copy(image_threshold)
+        image_sketch = copy.copy(resized)
+        perfect_image=cv2.imread(perfect_dict[args['image_to_paint']],cv2.IMREAD_COLOR)
+        perfect_resized = cv2.resize(perfect_image, (w, h), interpolation=cv2.INTER_AREA)
+        cv2.imshow('perfect', perfect_resized)
 
         # Mins and maxs acquired from dictionary in Json file
     mins = np.array([limits['B']['min'], limits['G']['min'], limits['R']['min']])
@@ -106,7 +108,7 @@ def main():
           '\nPress w to save the sketch'
           '\nInitializing with red color as default.')
 
-    color = (0, 0, 255)       #Default color for the sketch
+    color = (0, 0, 254)       #Default color for the sketch
     thickness = 2             #Default thickness of the pencil
     cX_past = 0
     cY_past = 0
@@ -196,6 +198,35 @@ def main():
 
         # Evaluates the drawing abilities of the user
         if evaluation == 1:
+            total=h*w
+            nottopaint=0
+            allEqual=0
+            for i in range(h):
+                for j in range(w):
+                    #compare the perfect image and the original one to count the pixel that are not to paint
+                    if np.all(perfect_resized[i,j]==resized[i,j]):
+                        nottopaint+=1
+            topaint=total-nottopaint
+            for i in range(h):
+                for j in range(w):
+                    if np.all(perfect_resized[i,j]==image_sketch[i,j]):
+                        allEqual+=1
+            right=allEqual-nottopaint
+            accuracy=right/topaint
+            if accuracy==1:
+                print('You are an artist. Its perfect!' )
+            elif accuracy==0:
+                print('Are you a magician? I dont think so. Nothing happened!')
+            elif accuracy<0.5:
+                print('Keep prating. One day you will be good. Or not...')
+            elif accuracy>0.5:
+                print('Weel done. A little bit of practice and you will be the next Van Gogh. Just kidding... ')
+            print('Accuracy=',round(accuracy*100,2),'%')
+            evaluation = not evaluation
+
+
+            #image_sketch[i,j]==perfect_dict[args['image_to_paint']][i,j]:
+
             # image_over_picture[np.where(image_sketch2 == [255])] = resized[np.where(image_sketch2 == 255)].copy()
             # img_blur = cv2.GaussianBlur(image_over_picture, (3, 3), 0)
             # # Canny Edge Detection
@@ -207,20 +238,20 @@ def main():
             # # Change the pixels where we have edges to red.
             # frame[mask] = (0, 0, 255)  # Where the mask is true, change the pixels to red
             # # Show image
-            cv2.imshow(window_name, frame)
+            #cv2.imshow(window_name, frame)
 
         key = cv2.waitKey(20)
 
         if key == ord('q'):                    # Stops the program when 'q' is pressed
             break
         if key == ord('r'):                    # Changes the pencil color to red when 'r' is pressed
-            color = (0, 0, 255)
+            color = (0, 0, 254)
         if key == ord('g'):                    # Changes the pencil color to green when 'g' is pressed
-            color = (0, 255, 0)
+            color = (1, 255, 0)
         if key == ord('b'):                    # Changes the pencil color to blue when 'b' is pressed
-            color = (255, 0, 0)
+            color = (254, 0, 0)
         if key == ord('y'):                    # Changes the pencil color to yellow when 'y' is pressed
-            color = (0, 255, 255)
+            color = (1, 255, 255)
         if key == ord('o'):                    # Changes the pencil color to orange when 'o' is pressed
             color = (0, 165, 255)
         if key == ord('k'):                    # Changes the pencil color to black when 'k' is pressed
@@ -236,14 +267,14 @@ def main():
         if key == ord('c'):                    # Clears the sketch when 'c' is pressed
             image_sketch2 = np.ones([h, w, 3], dtype=np.uint8) * 255
             if args['image_to_paint'] is not None:
-                image_sketch = copy.copy(image_threshold)
+                image_sketch = copy.copy(resized)
             else:
                 image_sketch = np.ones([h, w, 3], dtype=np.uint8) * 255
         if key == ord('w'):                    # Saves the sketch when 'w' is pressed
             filename = datetime.now().strftime('drawing_'+"%a_%b_%d_%H:%M:%S_%Y"+'.jpg')
             cv2.imwrite(filename, image_sketch)
             print(filename + ' saved.')
-        if key == ord('e'):
+        if key == ord('e')and args['image_to_paint'] is not None:
             evaluation = not evaluation
 
 
