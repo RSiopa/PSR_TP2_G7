@@ -43,23 +43,20 @@ def MouseCoord(event, x, y, flags, params, flag_video, window_name, img, img2, c
         # When mouse is moving
         elif event == cv2.EVENT_MOUSEMOVE and drawing:
             if flag_video is True:
-                copy1 = image_video.copy()
-                copy2 = image_video.copy()
+                copy_img = image_video.copy()
             else:
-                copy1 = img.copy()
-                copy2 = img.copy()
+                copy_img = img.copy()
+
             x_, y_ = x, y
 
-            cv2.rectangle(copy1, (ix, iy), (x_, y_), color, thickness)
-            cv2.rectangle(copy2, (ix, iy), (x_, y_), color, thickness)
+            cv2.rectangle(copy_img, (ix, iy), (x_, y_), color, thickness)
 
-            cv2.imshow(window_name, copy1)
-            cv2.imshow(window_name, copy2)
+            cv2.imshow(window_name, copy_img)
 
         # When realising left mouse button
         elif event == cv2.EVENT_LBUTTONUP:
             drawing = False
-            cv2.rectangle(img, (ix,iy), (x, y), color, thickness)
+            cv2.rectangle(img, (ix, iy), (x, y), color, thickness)
             cv2.rectangle(img2, (ix, iy), (x, y), color, thickness)
 
     # Drawing circles
@@ -73,18 +70,15 @@ def MouseCoord(event, x, y, flags, params, flag_video, window_name, img, img2, c
         # When mouse is moving
         elif event == cv2.EVENT_MOUSEMOVE and drawing:
             if flag_video is True:
-                copy1 = image_video.copy()
-                copy2 = image_video.copy()
+                copy_image = image_video.copy()
             else:
-                copy1 = img.copy()
-                copy2 = img.copy()
+                copy_image = img.copy()
+
             x_, y_ = x, y
 
-            cv2.circle(copy1, (ix, iy), round(math.sqrt((x_-ix)**2 + (y_-iy)**2)), color, thickness)
-            cv2.circle(copy2, (ix, iy), round(math.sqrt((x_-ix)**2 + (y_-iy)**2)), color, thickness)
+            cv2.circle(copy_image, (ix, iy), round(math.sqrt((x_-ix)**2 + (y_-iy)**2)), color, thickness)
 
-            cv2.imshow(window_name, copy1)
-            cv2.imshow(window_name, copy2)
+            cv2.imshow(window_name, copy_image)
 
         # When realising left mouse button
         elif event == cv2.EVENT_LBUTTONUP:
