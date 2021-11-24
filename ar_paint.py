@@ -4,7 +4,6 @@
 # Rafael Inacio Siopa.
 # Rodrigo Dinis Martins Ferreira.
 # Bartosz Bartosik.
-# Frederico Ribeiro e Martins.
 # PSR, November 2021.
 # --------------------------------------------------
 import argparse
@@ -19,7 +18,7 @@ drawing = False
 ix = -1
 iy = -1
 
-# Argument
+# Argparse argument
 parser = argparse.ArgumentParser()
 parser.add_argument('-j', '--json', type=str, help='Full path to json file.\n ')
 parser.add_argument('-usp', '--use_shake_prevention', action='store_true', help='When activated prevents old ends of a line from connecting to new lines.\n ')
@@ -88,11 +87,13 @@ def MouseCoord(event, x, y, flags, params, flag_video, window_name, img, img2, c
 
     # Default drawing
     else:
+        # When mouse is pressed
         if event == cv2.EVENT_LBUTTONDOWN:
             drawing = True
             ix = x
             iy = y
 
+        # When mouse is moving
         elif event == cv2.EVENT_MOUSEMOVE:
             if drawing is True:
                 cv2.line(img, (ix, iy), (x, y), color, thickness)
@@ -100,6 +101,7 @@ def MouseCoord(event, x, y, flags, params, flag_video, window_name, img, img2, c
                 ix = x
                 iy = y
 
+        # When realising left mouse button
         elif event == cv2.EVENT_LBUTTONUP:
             drawing = False
             cv2.line(img, (ix, iy), (x, y), color, thickness)
@@ -112,7 +114,11 @@ def main():
     # Initialization
     # -----------------------------------------------------------
 
-    # Read dictionary in Json file
+    print("\nWelcome to our Augmented Reality Paint program . \n\nContributors: \n- Rafael Inacio Siopa \n- Rodrigo Dinis Martins Ferreira "
+          " \n- Bartosz Bartosik \n\nPSR, University of Aveiro, "
+          "November 2021.\n")
+
+    # Read dictionary in Json file and put it at 'limits' variable
     data = json.load(open(args['json']))
     limits = data['limits']
 
@@ -120,9 +126,9 @@ def main():
     window_name = 'window_sketch'
     cv2.namedWindow(window_name)
     capture = cv2.VideoCapture(0)
+    _, image = capture.read()
 
     # White image aka image_sketch created
-    _, image = capture.read()
     h = len(image)
     w = len(image[0])
     image_sketch = np.ones([h, w, 3], dtype=np.uint8) * 255
@@ -136,15 +142,17 @@ def main():
 
     # If user wants to paint an image, image_sketch is now the image to paint
     if args['image_to_paint'] is not None:
+        # Put the image chosen in a variable and then resize it to the size of the webcam video and make a copy to maintain the original
         image_file = picture_dict[args['image_to_paint']]
         num_paint = cv2.imread(image_file, cv2.IMREAD_COLOR)
         resized = cv2.resize(num_paint, (w, h), interpolation=cv2.INTER_AREA)
         image_sketch = copy.copy(resized)
+
+        # Put the painted image in a variable and resize it.
         perfect_image = cv2.imread(perfect_dict[args['image_to_paint']], cv2.IMREAD_COLOR)
         perfect_resized = cv2.resize(perfect_image, (w, h), interpolation=cv2.INTER_AREA)
-        cv2.imshow('perfect', perfect_resized)
 
-        # Mins and maxs acquired from dictionary in Json file
+    # Mins and maxs acquired from dictionary in Json file in limits variable
     mins = np.array([limits['B']['min'], limits['G']['min'], limits['R']['min']])
     maxs = np.array([limits['B']['max'], limits['G']['max'], limits['R']['max']])
 
@@ -170,14 +178,18 @@ def main():
           '\nPress w to save the sketch'
           '\nInitializing with red color as default.')
 
-    color = (0, 0, 254)       #Default color for the sketch
-    thickness = 2             #Default thickness of the pencil
+    color = (0, 0, 255)                 # Default color for the sketch
+    thickness = 2                       # Default thickness of the pencil
+
+    # Used to save the x and y coordinates of the  past point of the pencil
     cX_past = 0
     cY_past = 0
+
+    # Used to save the x and y coordinates of the point of the pencil
     cX = 0
     cY = 0
 
-    flag_mouse = 0
+    flag_mouse = 0                      # Variable used to the program knows if is the mouse drawing
 
     # Detect type of drawing mode
     drawing_type = 'default'
@@ -185,9 +197,9 @@ def main():
     flag_circle = False
     flag_figure_drawing_in_progress = False
 
-    flag_video = 0
+    flag_video = 0                     # When 1 the program replaces the white board to the realtime webcam video
 
-    evaluation = 0
+    evaluation = 0                     # When 1 the program do the evaluation of the paint(Advanced function 5)
 
     # -----------------------------------------------------------
     # Continuous Operation
@@ -195,7 +207,7 @@ def main():
 
     while True:
 
-        key = cv2.waitKey(20)
+        key = cv2.waitKey(20)           # Save the key pressed
 
         _, image = capture.read()
         image_origin = copy.copy(image)
@@ -329,6 +341,7 @@ def main():
 
         # Evaluates the drawing abilities of the user
         if evaluation == 1:
+            cv2.imshow('Perfect painted', perfect_resized)
             print('Beginning evaluation...')
             total = h*w
             nottopaint = 0
@@ -392,7 +405,7 @@ def main():
             else:
                 image_sketch = np.ones([h, w, 3], dtype=np.uint8) * 255
         if key == ord('w'):                    # Saves the sketch when 'w' is pressed
-            filename = datetime.now().strftime('drawing_'+"%a_%b_%d_%H:%M:%S_%Y"+'.jpg')
+            filename = datetime.now().strftime('drawing_'+"%a_%b_%d_%H:%M:%S_%Y"+'.png')
             if flag_video is True:
                 cv2.imwrite(filename, image_over_sketch)
             else:
