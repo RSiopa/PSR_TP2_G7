@@ -37,9 +37,9 @@ The program will open a webcam and the segmented windows.
     Press 'q' to to quit the program
 
 
-![](Readme_Images/Screenshot_from_2021-11-24 20-28-47.png)
+![](Readme_Images/Screenshot_from_2021-11-24_20-28-47.png)
 
-![](Readme_Images/Screenshot_from_2021-11-24 20-29-14.png)
+![](Readme_Images/Screenshot_from_2021-11-24_20-29-14.png)
 
     
 
@@ -72,7 +72,7 @@ If you run the command:
 
 Will appear the 4 windows above:
 
-![](Readme_Images/Screenshot_from_2021-11-24 20-52-31.png)
+![](Readme_Images/Screenshot_from_2021-11-24_20-52-31.png)
 
 In the terminal appears: 
 
@@ -103,19 +103,19 @@ In the terminal appears:
 
 If 'v' is pressed: 
 
-![](Readme_Images/Screenshot_from_2021-11-24 21-02-57.png)
+![](Readme_Images/Screenshot_from_2021-11-24_21-02-57.png)
 
 If the 's' is pressed:
 
-![](Readme_Images/Screenshot_from_2021-11-24 21-06-32.png)
+![](Readme_Images/Screenshot_from_2021-11-24_21-06-32.png)
 
 If the 'c' is pressed:
 
-![](Readme_Images/Screenshot_from_2021-11-24 21-08-57.png)
+![](Readme_Images/Screenshot_from_2021-11-24_21-08-57.png)
 
 If the 'm' is pressed:
 
-![](Readme_Images/Screenshot_from_2021-11-24 21-10-39.png)
+![](Readme_Images/Screenshot_from_2021-11-24_21-10-39.png)
 
 If you run the command: 
 
@@ -123,7 +123,7 @@ If you run the command:
 
 Will appear the 4 windows above:
 
-![](Readme_Images/Screenshot_from_2021-11-24 20-59-43.png)
+![](Readme_Images/Screenshot_from_2021-11-24_20-59-43.png)
 
 And all the commands showed above work in that mode too. 
 
@@ -146,4 +146,4 @@ The program have an evaluation of the paint. For activate just press 'e'. The te
 
 And then show the perfect paint to make you jealous. 
 
-![](Readme_Images/Screenshot_from_2021-11-24 21-25-41.png)
+![](Readme_Images/Screenshot_from_2021-11-24_21-25-41.png)
