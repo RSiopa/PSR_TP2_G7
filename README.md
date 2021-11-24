@@ -5,19 +5,19 @@ This program aims to evaluate your drawing and painting accuracy.
 
 # Table of Contents
 - [color_segmenter.py](#color_segmeter.py)
-  - [Usage](#Color Segmenter Usage )
-  - [Results](#Color Segmenter Results )
+  - [Usage color segmenter](#Color_Segmenter_Usage)
+  - [Results color segmenter](#Color_Segmenter_Results)
 - [ar_paint.py](#ar_paint.py)
   - [Arguments](#Arguments)
-  - [Usage](#Ar_paint usage)
-  - [Results](#Ar_paint Results)
+  - [Usage ar paint](#Ar_paint_usage)
+  - [Results ar paint](#Ar_paint_Results)
 
 
-# color_segmeter.py
+#color_segmeter.py
 The color segmeter program has the objective of making a color filter so that we can make the color that is on our 
  smartphone work is the only one that is seen by ar_paint.py.
 
-#Color Segmenter Usage  
+# Usage color segmenter
 For example, if the user run the command 
     
     ./color_segmenter.py
@@ -43,18 +43,18 @@ The program will open a webcam and the segmented windows.
 
     
 
-#Color Segmenter Results 
+# Results color segmenter
 
 The result is when 'w' key is pressed the limits are saved in limits.json file
 
     Writing dictionary ranges to file limits.json
 
-#ar_paint.py
+# ar_paint.py
 The ar_paint.py program has the objective of using the mobile phone with a fixed color to draw on a white screen as if 
 it were the paint program. There are some variants like changing the white screen to the webcam video, using the mouse 
 instead of the webcam, drawing circles and squares, etc...
 
-#Arguments
+# Arguments
 
 To launch the program, the user can enter 3 additional input arguments: 
 
@@ -64,7 +64,7 @@ To launch the program, the user can enter 3 additional input arguments:
 
 -The image to paint that is 1, 2 or 3. 
 
-#Ar_paint usage
+# Usage ar paint
 
 If you run the command: 
 
@@ -127,7 +127,7 @@ Will appear the 4 windows above:
 
 And all the commands showed above work in that mode too. 
 
-#Ar_paint Results
+# Results ar paint
 
 The results of that program is that we can save the image that we draw or paint pressing the key 
 'w'. The terminal show:
