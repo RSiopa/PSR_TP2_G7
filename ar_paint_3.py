@@ -67,7 +67,7 @@ def MouseCoord(event, x, y, flags, param):
         # When realising left mouse button
         elif event == cv2.EVENT_LBUTTONUP:
             drawing = False
-            cv2.rectangle(img, (ix,iy), (x, y), color, thickness)
+            cv2.rectangle(img, (ix, iy), (x, y), color, thickness)
             cv2.rectangle(img2, (ix, iy), (x, y), color, thickness)
 
     # Drawing circles
