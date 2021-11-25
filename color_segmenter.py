@@ -9,7 +9,7 @@
 import json
 import cv2
 import numpy as np
-
+from colorama import Fore, Style
 
 # trackbar callback function that is not used
 def nothing(x):
@@ -22,14 +22,14 @@ def main():
     # Initialization
     # -----------------------------------------------------------
 
-    print("\nWelcome to our color segmenter program . \n\nContributors: \n- Rafael Inacio Siopa \n- Rodrigo Dinis Martins Ferreira "
+    print("\nWelcome to our color segmenter program. \n\nContributors: \n- Rafael Inacio Siopa \n- Rodrigo Dinis Martins Ferreira "
           " \n- Bartosz Bartosik \n\nPSR, University of Aveiro, "
           "November 2021.\n")
 
-    # Name of the window used for show the segmented image
+    # Name of the window used to show the segmented image
     window_name = 'Segmented'
 
-    # Create a window with the name of the window name variable
+    # Create a window with the name of the window_name variable
     cv2.namedWindow(window_name)
 
     # Capture a frame of the webcam
@@ -48,22 +48,22 @@ def main():
     cv2.createTrackbar('min R', window_name, 0, 255, nothing)
     cv2.createTrackbar('max R', window_name, 255, 255, nothing)
 
-    print("\nPress 'w' to save the trackbars limits.")
-    print("Press 'q' to to quit the program")
+    print("\nPress " + Fore.GREEN + "w" + Style.RESET_ALL + " to save the trackbars limits.")
+    print("Press " + Fore.GREEN + "q" + Style.RESET_ALL + " to to quit the program")
 
     # -----------------------------------------------------------
     # Continuous Operation
     # -----------------------------------------------------------
 
     while True:
-        # variable image have the realtime webcam video
+        # Variable image has the realtime webcam video
         _, image = capture.read()
 
-        # create and array and update it with the min and max of the trackbars limits for the in range function
+        # Create an array and update it with the min and max of the trackbars' limits for the inRange function
         mins = np.array([ranges['limits']['B']['min'], ranges['limits']['G']['min'], ranges['limits']['R']['min']])
         maxs = np.array([ranges['limits']['B']['max'], ranges['limits']['G']['max'], ranges['limits']['R']['max']])
 
-        # When a trackbar is moved the values are moved to the dictionary ranges
+        # When a trackbar is moved, the values are stored in the dictionary ranges
         ranges['limits']['B']['min'] = mins[0] = cv2.getTrackbarPos('min B', window_name)
         ranges['limits']['G']['min'] = mins[1] = cv2.getTrackbarPos('min G', window_name)
         ranges['limits']['R']['min'] = mins[2] = cv2.getTrackbarPos('min R', window_name)
@@ -74,21 +74,21 @@ def main():
         # Segment the webcam image in function of the limits of the trackbars
         segmented = cv2.inRange(image, mins, maxs)
 
-        # Show the image segmented and the webcam video live
+        # Show the segmented image and the webcam video stream
         cv2.imshow(window_name, segmented)
         cv2.imshow('Original', image)
 
-        # Key saves the kay that if pressed
+        # Saves key pressed
         key = cv2.waitKey(20)
 
-        # If the pressed key is 'w' the limits of trackbars are saved in limits.json file
+        # If the pressed key is 'w', the limits of the trackbars are saved in limits.json file
         if key == ord('w'):
             file_name = 'limits.json'
             with open(file_name, 'w') as file_handle:
                 print('Writing dictionary ranges to file ' + file_name)
                 json.dump(ranges, file_handle)  # ranges is the dictionary
 
-        # If the pressed key is 'q' the program ends
+        # If the pressed key is 'q', the program ends
         if key == ord('q'):
             break
 

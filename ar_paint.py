@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # --------------------------------------------------
-# Python script with a variety of painting functions!
+# Python script with a variety of painting functionalities!
 # Rafael Inacio Siopa.
 # Rodrigo Dinis Martins Ferreira.
 # Bartosz Bartosik.
@@ -20,8 +20,9 @@ iy = -1
 
 # Argparse argument
 parser = argparse.ArgumentParser()
-parser.add_argument('-j', '--json', type=str, help='Full path to json file.\n ')
-parser.add_argument('-usp', '--use_shake_prevention', action='store_true', help='When activated prevents old ends of a line from connecting to new lines.\n ')
+parser.add_argument('-j', '--json', required=True, type=str, help='Full path to json file.\n ')
+parser.add_argument('-usp', '--use_shake_prevention', action='store_true', help='When activated prevents old ends of a'
+                                                                                ' line from connecting to new lines.\n')
 parser.add_argument('-i', '--image_to_paint', type=int, help='Number of the picture you want to paint (1, 2 or 3).\n ')
 args = vars(parser.parse_args())
 
@@ -32,7 +33,7 @@ def MouseCoord(event, x, y, flags, params, flag_video, window_name, img, img2, c
 
     # Drawing rectangles
     if drawing_type == 'square':
-        # When mouse is pressed
+        # When left mouse button is pressed
         if event == cv2.EVENT_LBUTTONDOWN:
             drawing = True
             ix, iy = x, y
@@ -52,7 +53,7 @@ def MouseCoord(event, x, y, flags, params, flag_video, window_name, img, img2, c
 
             cv2.imshow(window_name, copy_img)
 
-        # When realising left mouse button
+        # When releasing left mouse button
         elif event == cv2.EVENT_LBUTTONUP:
             drawing = False
             cv2.rectangle(img, (ix, iy), (x, y), color, thickness)
@@ -60,7 +61,7 @@ def MouseCoord(event, x, y, flags, params, flag_video, window_name, img, img2, c
 
     # Drawing circles
     elif drawing_type == 'circle':
-        # When mouse is pressed
+        # When left mouse button is pressed
         if event == cv2.EVENT_LBUTTONDOWN:
             drawing = True
             ix, iy = x, y
@@ -79,7 +80,7 @@ def MouseCoord(event, x, y, flags, params, flag_video, window_name, img, img2, c
 
             cv2.imshow(window_name, copy_image)
 
-        # When realising left mouse button
+        # When releasing left mouse button
         elif event == cv2.EVENT_LBUTTONUP:
             drawing = False
             cv2.circle(img, (ix, iy), round(math.sqrt((x-ix)**2 + (y-iy)**2)), color, thickness)
@@ -87,7 +88,7 @@ def MouseCoord(event, x, y, flags, params, flag_video, window_name, img, img2, c
 
     # Default drawing
     else:
-        # When mouse is pressed
+        # When left mouse button is pressed
         if event == cv2.EVENT_LBUTTONDOWN:
             drawing = True
             ix = x
@@ -101,7 +102,7 @@ def MouseCoord(event, x, y, flags, params, flag_video, window_name, img, img2, c
                 ix = x
                 iy = y
 
-        # When realising left mouse button
+        # When releasing left mouse button
         elif event == cv2.EVENT_LBUTTONUP:
             drawing = False
             cv2.line(img, (ix, iy), (x, y), color, thickness)
@@ -114,11 +115,12 @@ def main():
     # Initialization
     # -----------------------------------------------------------
 
-    print("\nWelcome to our Augmented Reality Paint program . \n\nContributors: \n- Rafael Inacio Siopa \n- Rodrigo Dinis Martins Ferreira "
+    print("\nWelcome to our Augmented Reality Paint program. \n\nContributors: "
+          "\n- Rafael Inacio Siopa \n- Rodrigo Dinis Martins Ferreira "
           " \n- Bartosz Bartosik \n\nPSR, University of Aveiro, "
           "November 2021.\n")
 
-    # Read dictionary in Json file and put it at 'limits' variable
+    # Read dictionary from json file and put it in 'limits' variable
     data = json.load(open(args['json']))
     limits = data['limits']
 
@@ -128,13 +130,13 @@ def main():
     capture = cv2.VideoCapture(0)
     _, image = capture.read()
 
-    # White image aka image_sketch created
+    # White images created
     h = len(image)
     w = len(image[0])
     image_sketch = np.ones([h, w, 3], dtype=np.uint8) * 255
     image_sketch2 = np.ones([h, w, 3], dtype=np.uint8) * 255
 
-    # Dictionary for the pictures that the user will be able to choose to paint
+    # Dictionary for the pictures that the user will choose to paint
     picture_dict = {1: 'cupcake.png', 2: 'ball.png', 3: 'butterfly.png'}
 
     # Dictionary for the pictures perfectly painted
@@ -142,13 +144,14 @@ def main():
 
     # If user wants to paint an image, image_sketch is now the image to paint
     if args['image_to_paint'] is not None:
-        # Put the image chosen in a variable and then resize it to the size of the webcam video and make a copy to maintain the original
+        # Put the image chosen in a variable, then resize it to the size of the webcam video and make a copy
+        # to maintain the original
         image_file = picture_dict[args['image_to_paint']]
         num_paint = cv2.imread(image_file, cv2.IMREAD_COLOR)
         resized = cv2.resize(num_paint, (w, h), interpolation=cv2.INTER_AREA)
         image_sketch = copy.copy(resized)
 
-        # Put the painted image in a variable and resize it.
+        # Put the perfectly painted image in a variable and resize it.
         perfect_image = cv2.imread(perfect_dict[args['image_to_paint']], cv2.IMREAD_COLOR)
         perfect_resized = cv2.resize(perfect_image, (w, h), interpolation=cv2.INTER_AREA)
 
@@ -162,26 +165,26 @@ def main():
     # Flag for the program to know that the user just started to draw a new line (lines can be disconnected)
     flag_newline = 1
 
-    print('\nPress r to change to red color.'
-          '\nPress g to change to green color.'
-          '\nPress b to change to blue color.'
-          '\nPress y to change to yellow color.'
-          '\nPress p to change to orange color.'
-          '\nPress k to change to black color.'
-          '\nPress + to increase the thickness of the pencil'
-          '\nPress - to decrease the thickness of the pencil'
-          '\nPress m to use the mouse as the pencil.'
-          '\nPress v to change the white board to the video stream.'
-          '\nPress s to draw squares (once for the starting point and again for the finishing point).'
-          '\nPress o to draw circles.'
-          '\nPress c to clear the sketch'
-          '\nPress w to save the sketch'
-          '\nInitializing with red color as default.')
+    print('\nPress ' + Fore.GREEN + 'r' + Style.RESET_ALL + ' to change to ' + Fore.YELLOW + 'red color' + Style.RESET_ALL + '.'
+          '\nPress ' + Fore.GREEN + 'g' + Style.RESET_ALL + ' to change to ' + Fore.YELLOW + 'green color' + Style.RESET_ALL + '.'
+          '\nPress ' + Fore.GREEN + 'b' + Style.RESET_ALL + ' to change to ' + Fore.YELLOW + 'blue color' + Style.RESET_ALL + '.'
+          '\nPress ' + Fore.GREEN + 'y' + Style.RESET_ALL + ' to change to ' + Fore.YELLOW + 'yellow color' + Style.RESET_ALL + '.'
+          '\nPress ' + Fore.GREEN + 'p' + Style.RESET_ALL + ' to change to ' + Fore.YELLOW + 'orange color' + Style.RESET_ALL + '.'
+          '\nPress ' + Fore.GREEN + 'k' + Style.RESET_ALL + ' to change to ' + Fore.YELLOW + 'black color' + Style.RESET_ALL + '.'
+          '\nPress ' + Fore.GREEN + '+' + Style.RESET_ALL + ' to ' + Fore.YELLOW + 'increase the thickness' + Style.RESET_ALL + ' of the pencil'
+          '\nPress ' + Fore.GREEN + '-' + Style.RESET_ALL + ' to ' + Fore.YELLOW + 'decrease the thickness' + Style.RESET_ALL + ' of the pencil'
+          '\nPress ' + Fore.GREEN + 'm' + Style.RESET_ALL + ' to use the ' + Fore.YELLOW + 'mouse' + Style.RESET_ALL + ' as the pencil.'
+          '\nPress ' + Fore.GREEN + 'v' + Style.RESET_ALL + ' to change the white board to the ' + Fore.YELLOW + 'video stream' + Style.RESET_ALL + '.'
+          '\nPress ' + Fore.GREEN + 's' + Style.RESET_ALL + ' to draw ' + Fore.YELLOW + 'squares' + Style.RESET_ALL + '.'
+          '\nPress ' + Fore.GREEN + 'o' + Style.RESET_ALL + ' to draw ' + Fore.YELLOW + 'circles' + Style.RESET_ALL + '.'
+          '\nPress ' + Fore.GREEN + 'c' + Style.RESET_ALL + ' to ' + Fore.YELLOW + 'clear' + Style.RESET_ALL + ' the sketch'
+          '\nPress ' + Fore.GREEN + 'w' + Style.RESET_ALL + ' to ' + Fore.YELLOW + 'save' + Style.RESET_ALL + ' the sketch'
+          '\nInitializing with color ' + Fore.RED + 'red' + Style.RESET_ALL + ' as default.')
 
     color = (0, 0, 255)                 # Default color for the sketch
     thickness = 2                       # Default thickness of the pencil
 
-    # Used to save the x and y coordinates of the  past point of the pencil
+    # Used to save the x and y coordinates of the past point of the pencil
     cX_past = 0
     cY_past = 0
 
@@ -189,7 +192,8 @@ def main():
     cX = 0
     cY = 0
 
-    flag_mouse = 0                      # Variable used to the program knows if is the mouse drawing
+    # Variable used for the program to know if the mouse is drawing
+    flag_mouse = 0
 
     # Detect type of drawing mode
     drawing_type = 'default'
@@ -197,9 +201,11 @@ def main():
     flag_circle = False
     flag_figure_drawing_in_progress = False
 
-    flag_video = 0                     # When 1 the program replaces the white board to the realtime webcam video
+    # When flag_video is 1, the program replaces the white board by the realtime webcam video
+    flag_video = 0
 
-    evaluation = 0                     # When 1 the program do the evaluation of the paint(Advanced function 5)
+    # When evaluation is 1, the program does the evaluation of the drawing (Advanced functionality 5)
+    evaluation = 0
 
     # -----------------------------------------------------------
     # Continuous Operation
@@ -207,13 +213,14 @@ def main():
 
     while True:
 
-        key = cv2.waitKey(20)           # Save the key pressed
+        # Save the key pressed
+        key = cv2.waitKey(20)
 
         _, image = capture.read()
         image_origin = copy.copy(image)
         # Mask gotten from mins and maxs
         mask = cv2.inRange(image_origin, mins, maxs)
-        # Initiation of mask for only the largest object (needed here in case the program detects no items at the start)
+        # Initialization of mask for only the largest object (in case the program detects no items at the start)
         mask_largest = np.zeros(mask.shape)
 
         # Gets number of components, stats and their centroids
@@ -222,7 +229,7 @@ def main():
         nb_components = nb_components - 1
         min_size = 0
         for i in range(0, nb_components):
-            # Goes through all the objects but only paints and gets centroid of the largest
+            # Goes through all the objects but only paints and gets centroid of the largest one
             if sizes[i] >= min_size:
                 min_size = sizes[i]
                 # Mask of only the largest object
@@ -330,7 +337,7 @@ def main():
             cv2.imshow(window_name, image_over_sketch)
 
         params = [window_name, image_sketch, image_sketch2, color, thickness, drawing_type, flag_video, image_over_sketch]
-        # Changes the mouse color and thickness
+        # Changes the mouse color, thickness, drawing type, etc.
         MouseCoord_paint = partial(MouseCoord, window_name=params[0], img=params[1], img2=params[2], color=params[3],
                                    thickness=params[4], drawing_type=params[5], flag_video=params[6], image_video=params[7])
         # Changes modes if flag_mouse changes
@@ -374,8 +381,6 @@ def main():
                 print('Accuracy=' + Fore.YELLOW, round(accuracy * 100, 2), '%' + Style.RESET_ALL)
             evaluation = not evaluation
 
-        # key = cv2.waitKey(20)
-
         if key == ord('q'):                    # Stops the program when 'q' is pressed
             break
         if key == ord('r'):                    # Changes the pencil color to red when 'r' is pressed
@@ -413,8 +418,7 @@ def main():
             print(filename + ' saved.')
         if key == ord('e') and args['image_to_paint'] is not None:
             evaluation = not evaluation
-        # Detect if 's' is pressed and toggle it
-        if key == ord('s') and flag_circle is False:
+        if key == ord('s') and flag_circle is False:        # Detect if 's' is pressed and toggle it
             flag_square = not flag_square
             if flag_square:
                 drawing_type = 'square'
@@ -422,8 +426,7 @@ def main():
             else:
                 drawing_type = 'default'
                 print("You switched to default draw mode.")
-        # Detect if 'o' is pressed and toggle it
-        elif key == ord('o') and flag_square is False:
+        elif key == ord('o') and flag_square is False:      # Detect if 'o' is pressed and toggle it
             flag_circle = not flag_circle
             if flag_circle:
                 drawing_type = 'circle'
@@ -433,7 +436,5 @@ def main():
                 print("You switched to default draw mode.")
 
 
-
 if __name__ == '__main__':
     main()
-
